@@ -22,3 +22,6 @@ jobs:
         template: ./main.bicep
         parameters: 'storagePrefix=bicepstore storageSKU=Standard_LRS'
         failOnStdErr: false
+        failOnStandardError: false
+        ignoreLASTEXITCODE: true
+        powerShellIgnoreLASTEXITCODE: true
