@@ -1,6 +1,6 @@
 param location string = resourceGroup().location
 resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
-  name: 'bicep-vnet'
+  name: 'github-vnet'
   location: location
   properties: {
     addressSpace: {
