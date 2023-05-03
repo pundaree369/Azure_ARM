@@ -1,50 +1,33 @@
+@minLength(3)
+@maxLength(11)
+param storagePrefix string
+
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_RAGRS'
+  'Standard_ZRS'
+  'Premium_LRS'
+  'Premium_ZRS'
+  'Standard_GZRS'
+  'Standard_RAGZRS'
+])
+param storageSKU string = 'Standard_LRS'
+
 param location string = resourceGroup().location
-resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
-  name: 'github-vnet'
+
+var uniqueStorageName = '${storagePrefix}${uniqueString(resourceGroup().id)}'
+
+resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: uniqueStorageName
   location: location
+  sku: {
+    name: storageSKU
+  }
+  kind: 'StorageV2'
   properties: {
-    addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/21'
-      ]
-    }
+    supportsHttpsTrafficOnly: true
   }
 }
-resource subnet1 'Microsoft.Network/virtualNetworks/subnets@2021-08-01' = {
-  parent: vnet
-  name: 'subnet1'
-  properties: {
-    addressPrefix: '10.0.4.0/24'
-    networkSecurityGroup: {
-      id: nsg1.id
-    }
-  }
-}
-resource subnet2 'Microsoft.Network/virtualNetworks/subnets@2021-08-01' = {
-  parent: vnet
-  name: 'subnet2'
-  dependsOn: [
-    subnet1
-  ]
-  properties: {
-    addressPrefix: '10.0.5.0/24'
-    networkSecurityGroup: {
-      id: nsg2.id
-    }
-  }
-}
-resource gwsubnet 'Microsoft.Network/virtualNetworks/subnets@2021-08-01' = {
-  parent: vnet
-  name: 'GatewaySubnet'
-  properties: {
-    addressPrefix: '10.0.6.0/26'
-  }
-}
-resource nsg1 'Microsoft.Network/networkSecurityGroups@2021-08-01' = {
-  location: location
-  name: 'nsg1'
-}
-resource nsg2 'Microsoft.Network/networkSecurityGroups@2021-08-01' = {
-  location: location
-  name: 'nsg2'
-}
+
+output storageEndpoint object = stg.properties.primaryEndpoints
